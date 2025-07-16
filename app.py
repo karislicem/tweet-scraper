@@ -17,15 +17,23 @@ st.set_page_config(
 )
 
 def create_driver():
-    """Chrome driver oluştur"""
+    """Chrome driver oluştur - Streamlit Cloud uyumlu"""
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--disable-crash-reporter')
+    chrome_options.add_argument('--disable-extensions')
+    chrome_options.add_argument('--disable-in-process-stack-traces')
+    chrome_options.add_argument('--disable-logging')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--log-level=3')
+    chrome_options.add_argument('--output=/dev/null')
     chrome_options.add_argument('--disable-blink-features=AutomationControlled')
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option('useAutomationExtension', False)
-    chrome_options.add_argument('--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36')
+    chrome_options.add_argument('--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
     
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
