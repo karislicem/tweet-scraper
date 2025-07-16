@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import json
 import time
+import re
+import html
 from datetime import datetime, timedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -74,13 +76,33 @@ def get_latest_tweets(username, count=10):
         
         for tweet in tweet_elements[:count*3]:  # Daha fazla kontrol et
             try:
-                # Tweet metni
+                # Tweet metni - Türkçe karakterler ve özel simgeler için optimize edilmiş
                 text = ""
                 try:
                     text_element = tweet.find_element(By.CSS_SELECTOR, '[data-testid="tweetText"]')
-                    text = text_element.text
+                    # innerHTML kullanarak daha doğru metin al
+                    text = text_element.get_attribute('innerHTML')
+                    if text:
+                        # HTML tag'larını temizle
+                        text = re.sub(r'<[^>]+>', '', text)
+                        # HTML entity'leri düzelt
+                        text = html.unescape(text)
+                        # Ekstra temizlik
+                        text = text.replace('&amp;', '&')
+                        text = text.replace('&lt;', '<')
+                        text = text.replace('&gt;', '>')
+                        text = text.replace('&quot;', '"')
+                        text = text.replace('&#39;', "'")
+                        # Boşlukları düzelt
+                        text = ' '.join(text.split())
+                    else:
+                        text = text_element.text
                 except:
-                    text = tweet.text[:200] if tweet.text else "Tweet metni alınamadı"
+                    try:
+                        # Fallback: genel tweet text'i
+                        text = tweet.text[:200] if tweet.text else "Tweet metni alınamadı"
+                    except:
+                        text = "Tweet metni alınamadı"
                 
                 # Zaman
                 timestamp = ""
