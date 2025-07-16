@@ -60,32 +60,39 @@ def get_latest_tweets(username, count=10):
         driver.get(f"https://x.com/{username}")
         time.sleep(5)
         
-        # Daha fazla scroll - daha çok tweet yüklemek için
-        for i in range(3):
+        # Agresif scroll - çok daha fazla tweet yüklemek için
+        for i in range(8):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(2)
+            time.sleep(3)
+            # Sayfanın tamamen yüklenmesini bekle
+            if i % 2 == 0:
+                time.sleep(2)
         
-        # Tweet'leri bul - farklı selector'lar dene
+        # Tweet'leri bul - çok daha fazla selector dene
         tweet_elements = []
         selectors = [
             '[data-testid="tweet"]',
             'article[data-testid="tweet"]',
             'div[data-testid="tweet"]',
-            'article'
+            'article',
+            '[data-testid="cellInnerDiv"]',
+            'div[data-testid="cellInnerDiv"]',
+            'article[role="article"]',
+            'div[role="article"]'
         ]
         
         for selector in selectors:
             tweet_elements = driver.find_elements(By.CSS_SELECTOR, selector)
             if tweet_elements:
-                print(f"Bulunan tweet elementi sayısı: {len(tweet_elements)} (selector: {selector})")
+                st.write(f"🔍 Bulunan tweet elementi sayısı: {len(tweet_elements)} (selector: {selector})")
                 break
         
         if not tweet_elements:
             st.error(f"Tweet bulunamadı: {username}")
             return []
         
-        # Son 90 gün sınırı (daha fazla tweet için)
-        cutoff_date = datetime.now() - timedelta(days=90)
+        # Son 1 yıl sınırı (daha fazla tweet için)
+        cutoff_date = datetime.now() - timedelta(days=365)
         
         for tweet in tweet_elements[:count*5]:  # Çok daha fazla kontrol et
             try:
@@ -142,9 +149,10 @@ def get_latest_tweets(username, count=10):
                         'scraped_at': datetime.now().isoformat()
                     })
                     
-                    print(f"Tweet {len(tweets)} çekildi: {text[:50]}...")
+                    st.write(f"✅ Tweet {len(tweets)}: {text[:100]}...")
                     
                     if len(tweets) >= count:
+                        st.write(f"🎯 Hedef tweet sayısına ulaşıldı: {count}")
                         break
                         
             except Exception as e:
@@ -160,7 +168,7 @@ def get_latest_tweets(username, count=10):
 
 def main():
     st.title("🐦 Twitter Scraper")
-    st.write("Son tweet'leri çekin (son 90 gün)")
+    st.write("Son tweet'leri çekin (son 1 yıl)")
     
     # Kullanıcı adı girme
     st.subheader("👤 Kullanıcılar")
