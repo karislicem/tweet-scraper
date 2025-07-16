@@ -174,8 +174,8 @@ def main():
     st.subheader("👤 Kullanıcılar")
     usernames_input = st.text_input(
         "Kullanıcı adları (virgülle ayırın):",
-        value="elonmusk",
-        help="Örnek: elonmusk, sundarpichai"
+        value="@Airdropalertcom,@MMCrypto,@Ash_Crypto",
+        help="Örnek: @Airdropalertcom,@MMCrypto,@Ash_Crypto"
     )
     
     # Tweet sayısı
