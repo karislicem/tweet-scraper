@@ -178,7 +178,7 @@ def main():
     usernames_input = st.text_input(
         "Kullanıcı adları (virgülle ayırın):",
         value="@Airdropalertcom,@Ashcryptoreal",
-        help="Örnek: @Airdropalertcom,@Ashcryptoreal
+        help="Örnek: @Airdropalertcom,@Ashcryptoreal"
     )
     
     # Tweet sayısı
