@@ -61,12 +61,12 @@ def get_latest_tweets(username, count=10):
         time.sleep(5)
         
         # Agresif scroll - çok daha fazla tweet yüklemek için
-        for i in range(8):
+        for i in range(15):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(3)
+            time.sleep(2)
             # Sayfanın tamamen yüklenmesini bekle
-            if i % 2 == 0:
-                time.sleep(2)
+            if i % 3 == 0:
+                time.sleep(1)
         
         # Tweet'leri bul - çok daha fazla selector dene
         tweet_elements = []
@@ -91,10 +91,9 @@ def get_latest_tweets(username, count=10):
             st.error(f"Tweet bulunamadı: {username}")
             return []
         
-        # Son 1 yıl sınırı (daha fazla tweet için)
-        cutoff_date = datetime.now() - timedelta(days=30)
+        # Tüm tweet'leri al (tarih filtresi yok)
         
-        for tweet in tweet_elements[:count*5]:  # Çok daha fazla kontrol et
+        for tweet in tweet_elements[:count*10]:  # Çok daha fazla kontrol et
             try:
                 # Tweet metni - Türkçe karakterler ve özel simgeler için optimize edilmiş
                 text = ""
@@ -132,15 +131,6 @@ def get_latest_tweets(username, count=10):
                 except:
                     timestamp = datetime.now().isoformat()
                 
-                # Tarih kontrol et
-                if timestamp:
-                    try:
-                        tweet_date = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-                        if tweet_date < cutoff_date:
-                            continue
-                    except:
-                        pass
-                
                 if text and text != "Tweet metni alınamadı" and len(text.strip()) > 0:
                     tweets.append({
                         'username': username,
@@ -165,13 +155,18 @@ def get_latest_tweets(username, count=10):
         driver.quit()
     
     # Tweet'leri tarih sırasına göre sırala (en yeni önce)
-    tweets.sort(key=lambda x: x['timestamp'], reverse=True)
+    try:
+        tweets.sort(key=lambda x: datetime.fromisoformat(x['timestamp'].replace('Z', '+00:00')), reverse=True)
+    except:
+        # Tarih parse edilemezse string olarak sırala
+        tweets.sort(key=lambda x: x['timestamp'], reverse=True)
     
-    return tweets
+    # Sadece istenen sayıda tweet döndür
+    return tweets[:count]
 
 def main():
     st.title("🐦 Twitter Scraper")
-    st.write("Son tweet'leri çekin (son 30 gün)")
+    st.write("Son tweet'leri çekin (tarih sırasıyla)")
     
     # Kullanıcı adı girme
     st.subheader("👤 Kullanıcılar")
