@@ -92,7 +92,7 @@ def get_latest_tweets(username, count=10):
             return []
         
         # Son 1 yıl sınırı (daha fazla tweet için)
-        cutoff_date = datetime.now() - timedelta(days=365)
+        cutoff_date = datetime.now() - timedelta(days=30)
         
         for tweet in tweet_elements[:count*5]:  # Çok daha fazla kontrol et
             try:
@@ -164,18 +164,21 @@ def get_latest_tweets(username, count=10):
     finally:
         driver.quit()
     
+    # Tweet'leri tarih sırasına göre sırala (en yeni önce)
+    tweets.sort(key=lambda x: x['timestamp'], reverse=True)
+    
     return tweets
 
 def main():
     st.title("🐦 Twitter Scraper")
-    st.write("Son tweet'leri çekin (son 1 yıl)")
+    st.write("Son tweet'leri çekin (son 30 gün)")
     
     # Kullanıcı adı girme
     st.subheader("👤 Kullanıcılar")
     usernames_input = st.text_input(
         "Kullanıcı adları (virgülle ayırın):",
-        value="@Airdropalertcom,@MMCrypto,@Ash_Crypto",
-        help="Örnek: @Airdropalertcom,@MMCrypto,@Ash_Crypto"
+        value="@Airdropalertcom,@Ashcryptoreal",
+        help="Örnek: @Airdropalertcom,@Ashcryptoreal
     )
     
     # Tweet sayısı
