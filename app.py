@@ -60,12 +60,12 @@ def get_latest_tweets(username, count=10):
         driver.get(f"https://x.com/{username}")
         time.sleep(5)
         
-        # Agresif scroll - çok daha fazla tweet yüklemek için
-        for i in range(15):
+        # Daha az scroll - sadece son tweet'leri al
+        for i in range(5):
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
             # Sayfanın tamamen yüklenmesini bekle
-            if i % 3 == 0:
+            if i % 2 == 0:
                 time.sleep(1)
         
         # Tweet'leri bul - çok daha fazla selector dene
@@ -91,9 +91,10 @@ def get_latest_tweets(username, count=10):
             st.error(f"Tweet bulunamadı: {username}")
             return []
         
-        # Tüm tweet'leri al (tarih filtresi yok)
+        # Son 7 gün sınırı - çok eski tweet'leri al
+        cutoff_date = datetime.now() - timedelta(days=7)
         
-        for tweet in tweet_elements[:count*10]:  # Çok daha fazla kontrol et
+        for tweet in tweet_elements[:count*5]:  # Daha az kontrol et
             try:
                 # Tweet metni - Türkçe karakterler ve özel simgeler için optimize edilmiş
                 text = ""
@@ -131,6 +132,16 @@ def get_latest_tweets(username, count=10):
                 except:
                     timestamp = datetime.now().isoformat()
                 
+                # Tarih kontrol et - çok eski tweet'leri atla
+                if timestamp:
+                    try:
+                        tweet_date = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                        if tweet_date < cutoff_date:
+                            st.write(f"⏰ Eski tweet atlandı: {tweet_date.strftime('%Y-%m-%d')}")
+                            continue
+                    except:
+                        pass
+                
                 if text and text != "Tweet metni alınamadı" and len(text.strip()) > 0:
                     tweets.append({
                         'username': username,
@@ -166,7 +177,7 @@ def get_latest_tweets(username, count=10):
 
 def main():
     st.title("🐦 Twitter Scraper")
-    st.write("Son tweet'leri çekin (tarih sırasıyla)")
+    st.write("Son tweet'leri çekin (son 7 gün)")
     
     # Kullanıcı adı girme
     st.subheader("👤 Kullanıcılar")
